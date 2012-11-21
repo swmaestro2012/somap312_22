@@ -1,5 +1,0 @@
-package kr.softwaremaestro.indoor.engine;
-
-public class SmoothingFilter {
-
-}
