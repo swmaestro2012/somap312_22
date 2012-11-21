@@ -1,0 +1,71 @@
+package com.softwaremaestro.Indoornavigation.Activity;
+
+
+import com.softwaremaestro.Indoornavigation.R;
+import com.softwaremaestro.Indoornavigation.Util.DraggableImageView;
+import com.softwaremaestro.Indoornavigation.Util.StaticValue;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.widget.FrameLayout;
+import android.widget.SlidingDrawer;
+
+public class MapActivity extends Activity{
+	Intent intent;
+	DraggableImageView DimageView;
+	FrameLayout map_frame;
+	Bitmap [] mapArray;
+	boolean bSelectMyLocationOnMap;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_map);
+		
+		bSelectMyLocationOnMap=false;
+		
+		DimageView = (DraggableImageView) findViewById(R.id.activity_map_draggableimageview);
+		map_frame = (FrameLayout) findViewById(R.id.activity_map_framelayout);
+		
+		initMapBitmap();
+		
+		intent = getIntent();
+		int calltype = intent.getIntExtra(StaticValue.KEY_CALL_TYPE, -1);
+		if(calltype==StaticValue.TYPE_SELECT_DESTINATION){
+			int POIID = intent.getIntExtra(StaticValue.KEY_POI_ID, -1);
+			DimageView.setImageBitmap(mapArray[(int)intent.getIntExtra(StaticValue.KEY_POI_Z, 1)-1]);
+			startActivityForResult(new Intent(MapActivity.this,SelectMyLocationType.class),StaticValue.REQUEST_MYLOCATIONTYPE);
+		}
+		else{
+			DimageView.setImageBitmap(mapArray[0]);
+		}
+	}
+	private void initMapBitmap() {
+		mapArray = new Bitmap[2];
+		BitmapFactory.Options option = new BitmapFactory.Options();
+		option.inScaled = false;
+		mapArray[0]=BitmapFactory.decodeResource(getResources(), R.drawable.map_1, option);
+		mapArray[1]=BitmapFactory.decodeResource(getResources(), R.drawable.map_2, option);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == StaticValue.REQUEST_MYLOCATIONTYPE){
+			if(resultCode==RESULT_OK){
+				int result = data.getIntExtra(StaticValue.KEY_MYLOCATION_TYPE, -1);
+				if(result==StaticValue.TYPE_SELECT_MAP){
+					
+				}
+				else if(result == StaticValue.TYPE_SELECT_WIFI){
+					
+				}
+			}
+		}
+	}
+
+}

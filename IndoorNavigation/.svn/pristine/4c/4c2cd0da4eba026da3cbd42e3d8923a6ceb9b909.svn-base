@@ -1,0 +1,397 @@
+package com.softwaremaestro.Indoornavigation.Activity;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import kr.softwaremaestro.indoor.engine.Localization;
+import kr.softwaremaestro.indoor.engine.WiFiRadioMap;
+import kr.softwaremaestro.indoor.wrm.vo.Accesspoint;
+import kr.softwaremaestro.indoor.wrm.vo.ApSet;
+import kr.softwaremaestro.indoor.wrm.vo.Point;
+import kr.softwaremaestro.indoor.wrm.vo.Waypoint;
+import kr.softwaremaestro.indoor.wrm.vo.WaypointLink;
+
+import com.softwaremaestro.Indoornavigation.R;
+import com.softwaremaestro.Indoornavigation.Util.DraggableImageView;
+import com.softwaremaestro.Indoornavigation.Util.MyLocationOverlayView;
+import com.softwaremaestro.Indoornavigation.Util.StaticValue;
+
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.Toast;
+import android.widget.ImageView.ScaleType;
+
+public class MapActivity extends Activity {
+	Intent intent;
+	DraggableImageView DimageView;
+	FrameLayout map_frame;
+	Bitmap[] mapArray;
+	boolean bSelectMyLocationOnMap;
+	Button buttonShowMyLocation;
+	Localization mLocalization;
+	WiFiRadioMap mWrm;
+	WifiManager wifimanager;
+	List<ScanResult> mScanResult;
+	List<Accesspoint> apList;
+	ImageView mLocationOverlay;
+	Handler imageHandler;
+	boolean bScanstate;
+	boolean bValidPosition;
+	boolean bSetDestination;
+	boolean bSetModeManualPosition;
+	boolean bNowNavigating;
+	Point Destination;
+	Point Source;
+	int zOrder;
+	Handler scanHandler;
+	Runnable scanRunnable;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_map);
+
+		bSelectMyLocationOnMap = false;
+
+		DimageView = (DraggableImageView) findViewById(R.id.activity_map_draggableimageview);
+		map_frame = (FrameLayout) findViewById(R.id.activity_map_framelayout);
+
+		initMapBitmap();
+
+		try {
+			mWrm = WiFiRadioMap.getinstance(getApplicationContext());
+
+			apList = mWrm.getAccesspoints();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		mLocalization = new Localization(mWrm);
+		bSetDestination = false;
+		bSetModeManualPosition = false;
+		bNowNavigating = false;
+		bScanstate = false;
+
+		setImageHandler();
+		Bitmap bit = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+		mLocationOverlay = new MyLocationOverlayView(this);
+		mLocationOverlay.setLayoutParams(DimageView.getLayoutParams());
+		mLocationOverlay.setImageBitmap(bit);
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		DimageView.setDmetric(metrics);
+		((MyLocationOverlayView)mLocationOverlay).setScale(metrics.density);
+		map_frame.addView(mLocationOverlay);
+		buttonShowMyLocation = (Button) findViewById(R.id.activity_map_button_mylocation);
+		buttonShowMyLocation.setOnClickListener(l);
+
+		intent = getIntent();
+		int calltype = intent.getIntExtra(StaticValue.KEY_CALL_TYPE, -1);
+		if (calltype == StaticValue.TYPE_SELECT_DESTINATION) {
+			int POIID = intent.getIntExtra(StaticValue.KEY_POI_ID, -1);
+			double X = intent.getDoubleExtra(StaticValue.KEY_POI_X, -1);
+			double Y = intent.getDoubleExtra(StaticValue.KEY_POI_Y, -1);
+			int Z = intent.getIntExtra(StaticValue.KEY_POI_Z, -1);
+			Destination = new Point(POIID, X, Y, (double) Z);
+			bSetDestination = true;
+			DimageView.setHandler(imageHandler);
+			DimageView.setImageBitmap(mapArray[Z - 1]);
+			setzOrder(Z);
+		} else {
+			DimageView.setHandler(imageHandler);
+			DimageView.setImageBitmap(mapArray[1]);
+			setzOrder(2);
+		}
+		setScanHandler();
+	}
+
+	public void setScanHandler() {
+		scanHandler = new Handler(){
+			@Override
+			public void handleMessage(Message msg) {
+				getScanResult();
+				wifimanager.startScan();
+			}
+		};
+		scanRunnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				scanHandler.sendEmptyMessage(1);
+				if(bScanstate)
+					scanHandler.postDelayed(scanRunnable, 1000);
+			}
+		};
+	}
+
+	public void setImageHandler() {
+		imageHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+
+				switch (msg.what) {
+				case StaticValue.MSG_SYNC_IMAGEVIEW:
+					Matrix m = DimageView.getImageMatrix();
+					mLocationOverlay.setImageMatrix(m);
+					mLocationOverlay.invalidate();
+					DimageView.invalidate();
+					break;
+				case StaticValue.MSG_INIT_IMAGEVIEW:
+					int [] info=(int[]) msg.obj;
+					((MyLocationOverlayView)mLocationOverlay).setScale(info);
+					break;
+				case StaticValue.MSG_CLICK_VIEW:
+					Bundle bundle = msg.getData();
+					float xPos = bundle.getFloat("X");
+					float yPos = bundle.getFloat("Y");
+					callbackClickView(xPos, yPos);
+					break;
+				}
+			}
+		};
+	}
+
+	private void callbackClickView(float x, float y) {
+		if (bSetDestination && bSetModeManualPosition && !bNowNavigating) {
+			Source = new Point(-1, (double) x, (double) y, (double) zOrder);
+			startActivityPreviewWay();
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		wifimanager = (WifiManager) getSystemService(WIFI_SERVICE);
+		if (wifimanager.isWifiEnabled() == false)
+			wifimanager.setWifiEnabled(true);
+		if (!bSetModeManualPosition)
+			startWIFIScan();
+		bValidPosition = false;
+	}
+
+	private void initMapBitmap() {
+		mapArray = new Bitmap[2];
+		BitmapFactory.Options option = new BitmapFactory.Options();
+		option.inScaled = false;
+		option.inPurgeable = true;
+		mapArray[0] = BitmapFactory.decodeResource(getResources(),
+				R.drawable.map_1, option);
+		mapArray[1] = BitmapFactory.decodeResource(getResources(),
+				R.drawable.map_2, option);
+	}
+
+	OnClickListener l = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			if (v == buttonShowMyLocation) {
+				if (bNowNavigating)
+					return;
+				if (!bValidPosition) {
+					startActivity(new Intent(MapActivity.this,
+							InvalidPositionDialog.class));
+					return;
+				}
+				if (!bScanstate)
+					startWIFIScan();
+				if (Source == null) {
+					Toast.makeText(MapActivity.this, "mylocation null",
+							Toast.LENGTH_SHORT).show();
+				} else {
+					DimageView.focusToPoint(Source);
+					Toast.makeText(MapActivity.this, Source.toString(),
+							Toast.LENGTH_SHORT).show();
+				}
+
+			}
+		}
+	};
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == StaticValue.REQUEST_MYLOCATIONTYPE) {
+			if (resultCode == RESULT_OK) {
+				bSetModeManualPosition = true;
+			} else if (resultCode == RESULT_CANCELED) {
+				bSetDestination = false;
+			}
+		}
+		if (requestCode == StaticValue.REQUEST_PREVIEW_WAY) {
+			if (resultCode == RESULT_OK) {
+				bNowNavigating = true;
+			} else if (resultCode == RESULT_CANCELED) {
+				bSetDestination = false;
+				bSetModeManualPosition = false;
+				bNowNavigating = false;
+			}
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		mapArray[0].recycle();
+		mapArray[1].recycle();
+		recycleImageView(DimageView);
+		recycleImageView(mLocationOverlay);
+
+	}
+
+	private static void recycleImageView(ImageView iv) {
+		Drawable d = iv.getDrawable();
+		Bitmap b = ((BitmapDrawable) d).getBitmap();
+		b.recycle();
+		d.setCallback(null);
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		if (bScanstate) {
+			stopWIFIScan();
+		}
+		bValidPosition = false;
+
+	}
+
+	public void stopWIFIScan() {
+		if (bScanstate) {
+			bScanstate = false;
+			//unregisterReceiver(mReceiver);
+
+			Toast.makeText(MapActivity.this, "scanstop", Toast.LENGTH_SHORT)
+					.show();
+		}
+	}
+
+	public void startWIFIScan() {
+		// init WIFISCAN
+		if (!bScanstate) {
+			bScanstate = true;
+			scanHandler.postDelayed(scanRunnable, 1000);
+			/*final IntentFilter filter = new IntentFilter(
+					WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+			filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+			registerReceiver(mReceiver, filter);*/
+			wifimanager.startScan();
+
+			Toast.makeText(MapActivity.this, "scanstart", Toast.LENGTH_SHORT)
+					.show();
+		}
+	}
+
+	public void setzOrder(int zOrder) {
+		this.zOrder = zOrder;
+		((MyLocationOverlayView)mLocationOverlay).setzOrder(zOrder);
+	}
+	public void getScanResult() {
+		Log.e("scan","getresult");
+		mScanResult = wifimanager.getScanResults();
+
+		Log.e("scan","mScanResult size : "+mScanResult.size());
+		Set<ApSet> fingerprint = new HashSet<ApSet>();
+		for (ScanResult scan : mScanResult) {
+			Accesspoint findap = null;
+			for (Accesspoint ap : apList) {
+				if (ap.getBssid().equals(scan.BSSID)) {
+					findap = ap;
+					break;
+				}
+			}
+			if (findap == null)
+				continue;
+			ApSet temp = new ApSet(null, findap.getId(), scan.level);
+			fingerprint.add(temp);
+		}
+		Log.e("scan","fingerPrint size : "+fingerprint.size());
+		Log.e("scan","getposition");
+		Point p = mLocalization.getPosition(fingerprint);
+		
+		fingerprint.clear();
+		if (p == null) {
+			bValidPosition = false;
+			if (bNowNavigating) {
+
+			} else {
+				if (bSetDestination && !bSetModeManualPosition) {
+					stopWIFIScan();
+					startActivityForResult(new Intent(MapActivity.this,
+							SelectMyLocationType.class),
+							StaticValue.REQUEST_MYLOCATIONTYPE);
+				}
+			}
+
+		} else {
+			Log.e("scan","get : "+p.toString());
+			bValidPosition = true;
+			Source = p;
+			((MyLocationOverlayView)mLocationOverlay).setMyLocation(Source);
+			mLocationOverlay.invalidate();
+			if (bNowNavigating) {
+
+			} else {
+				if (bSetDestination && bSetModeManualPosition) {
+					stopWIFIScan();
+					startActivityPreviewWay();
+				}
+			}
+		}
+	}
+
+	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			final String action = intent.getAction();
+			if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+				getScanResult();
+				wifimanager.startScan(); // for refresh
+			} else if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+				sendBroadcast(new Intent("wifi.ON_NETWORK_STATE_CHANGED"));
+			}
+
+		
+		}
+	};
+
+	public void startActivityPreviewWay() {
+		Intent intent = new Intent(MapActivity.this, PreviewWayActivity.class);
+		intent.putExtra(StaticValue.KEY_SRC_ID, Source.getId().intValue());
+		intent.putExtra(StaticValue.KEY_SRC_X, Source.getX().doubleValue());
+		intent.putExtra(StaticValue.KEY_SRC_Y, Source.getY().doubleValue());
+		intent.putExtra(StaticValue.KEY_SRC_Z, Source.getZ().doubleValue());
+		intent.putExtra(StaticValue.KEY_DST_ID, Destination.getId().intValue());
+		intent.putExtra(StaticValue.KEY_DST_X, Destination.getX().doubleValue());
+		intent.putExtra(StaticValue.KEY_DST_Y, Destination.getY().doubleValue());
+		intent.putExtra(StaticValue.KEY_DST_Z, Destination.getZ().doubleValue());
+		startActivityForResult(intent, StaticValue.REQUEST_PREVIEW_WAY);
+	}
+
+}

@@ -1,0 +1,136 @@
+package com.softwaremaestro.Indoornavigation.Util;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import kr.softwaremaestro.indoor.wrm.vo.BaseMeasurepoint;
+import kr.softwaremaestro.indoor.wrm.vo.Measurepoint;
+import kr.softwaremaestro.indoor.wrm.vo.MeasurepointLink;
+import kr.softwaremaestro.indoor.wrm.vo.Point;
+import kr.softwaremaestro.indoor.wrm.vo.PointOfInterest;
+import kr.softwaremaestro.indoor.wrm.vo.Waypoint;
+import kr.softwaremaestro.indoor.wrm.vo.WaypointLink;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.widget.ImageView;
+
+public class MyLocationOverlayView extends ImageView {
+
+	Point myLocation;
+	ArrayList<Waypoint> WaypointList;
+	ArrayList<WaypointLink> WaypointLinkList;
+	int zOrder;
+
+	public void setzOrder(int zOrder) {
+		this.zOrder = zOrder;
+	}
+
+	public void setMyLocation(Point myLocation) {
+		this.myLocation = myLocation;
+	}
+
+	public MyLocationOverlayView(Context context) {
+		this(context, null);
+	}
+
+	public MyLocationOverlayView(Context context, int height, int width) {
+		this(context, null);
+	}
+
+	public MyLocationOverlayView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		myLocation = new Point(-1, 0.0, 0.0, 0.0);
+		WaypointList = new ArrayList<Waypoint>();
+		WaypointLinkList = new ArrayList<WaypointLink>();
+		setBackgroundColor(Color.TRANSPARENT);
+		setScaleType(ScaleType.MATRIX);
+	}
+	
+
+	@Override
+	public void setImageBitmap(Bitmap bm) {
+		super.setImageBitmap(bm);
+		Log.e("myLocationimage", ""+getDrawable().getIntrinsicWidth());
+		Log.e("myLocationimage", ""+getDrawable().getIntrinsicHeight());
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right,
+			int bottom) {
+		super.onLayout(changed, left, top, right, bottom);
+
+		//
+		Log.e("viewsize","myLocation size: "+this.getWidth()+"/"+this.getHeight());
+		//
+		
+	}
+
+	public void onDraw(Canvas c) {
+		super.onDraw(c);
+		float[] value = new float[9];
+		getImageMatrix().getValues(value);
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setColor(Color.RED);
+		paint.setAlpha(100);
+		c.drawCircle((float) (value[2] + myLocation.getX() * value[0]),
+				(float) (value[5] + myLocation.getY() * value[0]),
+				14 * value[0], paint);
+		c.drawCircle((float) (value[2] + 10 * value[0]),
+				(float) (value[5] + 10 * value[0]), 14 * value[0], paint);
+		paint.setAlpha(50);
+		paint.setColor(Color.GREEN);
+		paint.setAlpha(50);
+		for (Waypoint wp : WaypointList) {
+			if (wp.getZ().intValue() == zOrder) {
+				c.drawCircle((float) (value[2] + wp.getX() * value[0]),
+						(float) (value[5] + wp.getY() * value[0]),
+						14 * value[0], paint);
+				paint.setAlpha(50);
+			}
+		}
+		paint.setColor(Color.GREEN);
+		paint.setAlpha(50);
+		for (WaypointLink wl : WaypointLinkList) {
+			Waypoint start = null, end = null;
+			boolean searchFlag = false;
+			for (Waypoint wp : WaypointList) {
+				if (searchFlag)
+					break;
+				if (wp.getZ().intValue() != zOrder)
+					continue;
+				if (wp.getId().equals(wl.getEndPointId()))
+					end = wp;
+				if (wp.getId().equals(wl.getStartPointId()))
+					start = wp;
+				if (start != null && end != null)
+					searchFlag = true;
+			}
+			if (searchFlag) {
+				c.drawLine((float) (value[2] + start.getX() * value[0]),
+						(float) (value[5] + start.getY() * value[0]),
+						(float) (value[2] + end.getX() * value[0]),
+						(float) (value[5] + end.getY() * value[0]), paint);
+				paint.setAlpha(50);
+			}
+		}
+	}
+	
+	public void setWaypointList(ArrayList<Waypoint> waypointList) {
+		WaypointList = waypointList;
+	}
+
+	public ArrayList<WaypointLink> getWaypointLinkList() {
+		return WaypointLinkList;
+	}
+
+	public void setWaypointLinkList(ArrayList<WaypointLink> waypointLinkList) {
+		WaypointLinkList = waypointLinkList;
+	}
+
+}

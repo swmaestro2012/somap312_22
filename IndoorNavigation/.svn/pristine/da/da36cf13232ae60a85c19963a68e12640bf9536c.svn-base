@@ -1,0 +1,28 @@
+package com.softwaremaestro.Indoornavigation.Activity;
+
+import com.softwaremaestro.Indoornavigation.R;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.app.Activity;
+import android.content.Intent;
+
+public class IntroActivity extends Activity {
+	Handler mHandler;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_intro);
+        
+        mHandler = new Handler();
+		mHandler.postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				startActivity(new Intent(IntroActivity.this,MenuActivity.class));
+				finish();
+			}
+		}, 2000);
+    }
+}

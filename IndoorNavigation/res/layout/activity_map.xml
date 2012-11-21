@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:id="@+id/activity_map_framelayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <com.softwaremaestro.Indoornavigation.Util.DraggableImageView
+                android:id="@+id/activity_map_draggableimageview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="#ffffffff"
+                android:focusable="true" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="horizontal"
+                android:padding="15dip" >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <Button
+                        android:id="@+id/activity_map_button_spinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" 
+                        android:textSize="30sp"
+                        android:textColor="#ffffff00"
+                        android:background="@drawable/buttonstyle"/>
+
+                    <Button
+                        android:id="@+id/activity_map_button_floor1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="   1F   "
+                        android:textColor="#ffffffff"
+                        android:textSize="30sp"
+                        android:background="@drawable/buttonstyle" />
+
+                    <Button
+                        android:id="@+id/activity_map_button_floor2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="   2F   "
+                        android:textColor="#ffffffff" 
+                        android:textSize="30sp"
+                        android:background="@drawable/buttonstyle"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="0px"
+                    android:layout_height="10px"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/activity_map_button_mylocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                        android:textColor="#ffffffff" 
+                        android:textSize="30sp"
+                        android:background="@drawable/home"/>
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>

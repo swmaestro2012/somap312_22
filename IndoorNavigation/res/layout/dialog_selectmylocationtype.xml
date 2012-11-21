@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dip"
+    android:layout_height="380dip"
+    android:background="@drawable/selectlocationtype"
+    android:orientation="vertical" >
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="423" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="65"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="85" />
+
+        <Button
+            android:id="@+id/dialog_selectmylocationtype_button_map"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="65"
+            android:background="@null" />
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="120" />
+
+        <Button
+            android:id="@+id/dialog_selectmylocationtype_button_wifi"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="65"
+            android:background="@null" />
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="85" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="73" />
+
+</LinearLayout>

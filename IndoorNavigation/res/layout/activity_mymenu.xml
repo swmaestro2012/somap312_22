@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/mymenubg"
+    android:orientation="vertical" >
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="143" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="124"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="19" />
+
+        <View
+            android:id="@+id/activity_mymenu_button_recentsearchlist"
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="443"
+            android:background="@drawable/recentsearchbutton" />
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="19" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="21" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="161"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="19" />
+
+        <LinearLayout
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="443"
+            android:background="@drawable/mymenusound"
+            android:orientation="vertical" >
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="30" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="120"
+                android:orientation="horizontal" >
+
+                <View
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="142" />
+
+                <View
+                    android:id="@+id/activity_mymenu_switch_sound_on"
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="170"
+                    android:background="@drawable/buttonon" />
+
+                <View
+                    android:id="@+id/activity_mymenu_switch_sound_off"
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="170"
+                    android:background="@drawable/buttonoff" />
+
+                <View
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="0" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="9" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="19" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="16" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="161"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="19" />
+
+        <LinearLayout
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="443"
+            android:background="@drawable/mymenuvibrate"
+            android:orientation="vertical" >
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="28" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="121"
+                android:orientation="horizontal" >
+
+                <View
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="142" />
+
+                <View
+                    android:id="@+id/activity_mymenu_switch_vibrate_on"
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="170"
+                    android:background="@drawable/buttonon" />
+
+                <View
+                    android:id="@+id/activity_mymenu_switch_vibrate_off"
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="170"
+                    android:background="@drawable/buttonoff" />
+
+                <View
+                    android:layout_width="0px"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="0" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="10" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="19" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="176" />
+
+</LinearLayout>

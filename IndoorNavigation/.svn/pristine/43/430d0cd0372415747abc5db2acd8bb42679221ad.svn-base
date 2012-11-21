@@ -1,0 +1,108 @@
+package com.softwaremaestro.Indoornavigation.Activity;
+
+import com.softwaremaestro.Indoornavigation.R;
+import com.softwaremaestro.Indoornavigation.Util.PreferenceUtil;
+import com.softwaremaestro.Indoornavigation.Util.StaticValue;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+
+public class MyMenuActivity extends Activity{
+	View buttonRecentSearchList;
+	View switchSoundEnable;
+	View switchVibrateEnable;
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_mymenu);
+        
+        buttonRecentSearchList = (View) findViewById(R.id.activity_mymenu_button_recentsearchlist);
+        switchSoundEnable = (View) findViewById(R.id.activity_mymenu_switch_sound);
+        switchVibrateEnable = (View) findViewById(R.id.activity_mymenu_switch_vibrate);
+        
+        buttonRecentSearchList.setOnClickListener(l);
+        switchSoundEnable.setOnClickListener(l);
+        switchVibrateEnable.setOnClickListener(l);
+        
+        initSwitch();
+	}
+	
+	private void initSwitch() {
+		String sound = PreferenceUtil.getAppPreferences(this, StaticValue.KEY_SOUND_ENABLE);
+		String vibrate = PreferenceUtil.getAppPreferences(this, StaticValue.KEY_VIBRATE_ENABLE);
+		
+		if(sound.equals("")){
+			sound = "off";
+			PreferenceUtil.setAppPreferences(this, StaticValue.KEY_SOUND_ENABLE, sound);
+		}
+		if(vibrate.equals("")){
+			vibrate = "off";
+			PreferenceUtil.setAppPreferences(this, StaticValue.KEY_VIBRATE_ENABLE, vibrate);
+		}
+		if(sound.equals("on"))
+			switchSoundEnable.setBackgroundColor(Color.BLUE);
+		else
+			switchSoundEnable.setBackgroundColor(Color.RED);
+		if(vibrate.equals("on"))
+			switchVibrateEnable.setBackgroundColor(Color.BLUE);
+		else
+			switchVibrateEnable.setBackgroundColor(Color.RED);
+	}
+
+	OnClickListener l  = new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			if(v == buttonRecentSearchList)
+				startActivityForResult(new Intent(MyMenuActivity.this,RecentSearchList.class),StaticValue.REQUEST_RECENTSEARCHLIST);
+			if(v == switchSoundEnable){
+				String sound = PreferenceUtil.getAppPreferences(MyMenuActivity.this, StaticValue.KEY_SOUND_ENABLE);
+				if(sound.equals("on")){
+					switchSoundEnable.setBackgroundColor(Color.RED);
+					PreferenceUtil.setAppPreferences(MyMenuActivity.this, StaticValue.KEY_SOUND_ENABLE, "off");
+				}
+				else{
+					switchSoundEnable.setBackgroundColor(Color.BLUE);
+					PreferenceUtil.setAppPreferences(MyMenuActivity.this, StaticValue.KEY_SOUND_ENABLE, "on");
+				}
+			}
+			if(v == switchVibrateEnable){
+				String vibrate = PreferenceUtil.getAppPreferences(MyMenuActivity.this, StaticValue.KEY_VIBRATE_ENABLE);
+				if(vibrate.equals("on")){
+					switchVibrateEnable.setBackgroundColor(Color.RED);
+					PreferenceUtil.setAppPreferences(MyMenuActivity.this, StaticValue.KEY_VIBRATE_ENABLE, "off");
+				}
+				else{
+					switchVibrateEnable.setBackgroundColor(Color.BLUE);
+					PreferenceUtil.setAppPreferences(MyMenuActivity.this, StaticValue.KEY_VIBRATE_ENABLE, "on");
+				}
+			}
+		}
+	};
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode== StaticValue.REQUEST_RECENTSEARCHLIST){
+			if(resultCode==RESULT_OK){
+				int poiID = data.getIntExtra(StaticValue.KEY_POI_ID, -1);
+				if(poiID!=-1){
+					Intent intent = new Intent(MyMenuActivity.this,
+							MapActivity.class);
+					intent.putExtra(StaticValue.KEY_POI_ID, poiID);
+					intent.putExtra(StaticValue.KEY_POI_X, data.getDoubleExtra(StaticValue.KEY_POI_ID, -1));
+					intent.putExtra(StaticValue.KEY_POI_Y, data.getDoubleExtra(StaticValue.KEY_POI_ID, -1));
+					intent.putExtra(StaticValue.KEY_POI_Z, data.getDoubleExtra(StaticValue.KEY_POI_ID, -1));
+					intent.putExtra(StaticValue.KEY_CALL_TYPE, StaticValue.TYPE_SELECT_DESTINATION);
+					startActivity(intent);
+					finish();
+				}
+			}
+		}
+	}
+
+}

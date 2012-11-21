@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/searchbg"
+    android:orientation="vertical" >
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="115" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="60"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="50" />
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="280"
+            android:background="@drawable/edittext"
+            android:orientation="horizontal" >
+
+            <View
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_weight="30" />
+
+            <EditText
+                android:id="@+id/activity_searchpoi_edittext_poiname"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_weight="230"
+                android:background="@null" />
+
+            <View
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_weight="20" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="50" />
+
+        <View
+            android:id="@+id/activity_searchpoi_button_search"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="50"
+            android:background="@drawable/search" />
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="50" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="475"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="30" />
+
+        <ListView
+            android:id="@+id/activity_searchpoi_listview"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="420" >
+        </ListView>
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="30" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="31" />
+
+</LinearLayout>
